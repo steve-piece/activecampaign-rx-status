@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Update Patient Info</title>
+</head>
+<body>
+  <h2>Update Patient Info</h2>
+  <form id="patientInfoForm">
+    <label for="shippingAddress">Shipping Address:</label><br>
+    <textarea id="shippingAddress" name="shippingAddress" rows="4" cols="50"></textarea><br>
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email"><br>
+    <label for="phoneNumber">Phone Number:</label><br>
+    <input type="tel" id="phoneNumber" name="phoneNumber"><br><br>
+    <button type="submit" id="updateInfo">Update Info</button>
+  </form> 
+
+  <script src='https://unpkg.com/zoid@9.0.85/dist/zoid.frameworks.js'></script>
+  <script>
+    window.onload = () => {
+      window.zoid.create({ 
+        tag: "Edit Patient Info", 
+        url: window.location.href 
+      });
+
+      populateFormFields(); 
+    }
+
+    document.getElementById("patientInfoForm").addEventListener("submit", (event) => {
+      event.preventDefault(); 
+      updatePatientInfo();
+    });
+
+    async function populateFormFields() {
+      if (window.xprops) {
+        // Assuming xprops.data contains the contact data
+        document.getElementById("shippingAddress").value = window.xprops.data.shippingAddress || "";
+        document.getElementById("email").value = window.xprops.data.email || "";
+        document.getElementById("phoneNumber").value = window.xprops.data.phoneNumber || ""; 
+      } else {
+        console.log("Xprops not defined."); 
+      }
+    }
+
+    async function updatePatientInfo() {
+      if (window.xprops) {
+        const connection_id = window.xprops.connection_data.id; 
+        const formData = new FormData(document.getElementById("patientInfoForm")); 
+        const updatedData = {};
+        formData.forEach((value, key) => {
+          updatedData[key] = value;
+        });
+
+        const url = `https://wpnapi-dev.wellsrx.com/api/patients/${window.xprops.data.id}`; // Replace with your API endpoint and patient ID reference
+
+        let response = await window.xprops.putDataViaProxy(url, connection_id, updatedData);
+        console.log(response); 
+      } else {
+        console.log("Xprops not defined."); 
+      }
+    }
+  </script>
+</body>
+</html>
